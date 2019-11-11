@@ -1,0 +1,147 @@
+# Docker-compose for Graylog
+version: '3'
+volumes:
+  esdata:
+    driver: local
+  graylogdata:
+    driver: local
+  mongodata:
+    driver: local
+
+services:
+  mongodb:
+    image: mongo:3
+    container_name: mongo-graylog
+    command: "mongod --config /conf/mongo.conf"
+    volumes:
+      - "$HOME/ZGMPG/mongodata:/data"
+      - "./mongo:/conf/"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.2
+    container_name: elasticsearch
+    volumes:
+      - "$HOME/ZGMPG/esdata:/usr/share/elasticsearch/data"
+      - "./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
+      - "./elasticsearch/logging.yml:/usr/share/elasticsearch/config/logging.yml:ro"
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  elasticsearch-zipkin:
+    image: openzipkin/zipkin-elasticsearch7
+    container_name: elasticsearch-zipkin
+    volumes:
+      - "$HOME/ZGMPG/esdata-zipkin:/usr/share/elasticsearch/data"
+      - "./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
+      - "./elasticsearch/logging.yml:/usr/share/elasticsearch/config/logging.yml:ro"
+    ports:
+      - 19200:9200
+      - 19300:9300
+
+  graylog:
+    image: graylog/graylog:3.1
+    container_name: graylog
+    environment:
+      GRAYLOG_PASSWORD_SECRET: 'supersecretpassword'
+      # Password: admin
+      GRAYLOG_ROOT_PASSWORD_SHA2: 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      GRAYLOG_HTTP_EXTERNAL_URI: http://127.0.0.1:9000/
+      GRAYLOG_MONGODB_MAX_CONNECTIONS: 100
+      GRAYLOG_MONGODB_URI: mongodb://mongo-graylog/graylog
+      GRAYLOG_MONGODB_THREADS_ALLOWED_TO_BLOCK_MULTIPLIER: 5
+      GRAYLOG_ELASTICSEARCH_CLUSTER_NAME: graylog
+    volumes:
+      - "$HOME/ZGMPG/graylogdata:/opt/graylog/data"
+      - "./graylog-plugin/:/opt/graylog/plugin/"
+    links:
+      - mongodb:mongo-graylog
+      - elasticsearch
+    depends_on:
+      - mongodb
+      - elasticsearch
+    ports:
+      # Graylog web interface and REST API
+      - 9000:9000
+      # Syslog TCP
+      - 1514:1514
+      # Syslog UDP
+      - 1514:1514/udp
+      # GELF TCP
+      - 12201:12201
+      # GELF UDP
+      - 12201:12201/udp
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    links:
+      - elasticsearch
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
+    links:
+      - prometheus
+    depends_on:
+      - prometheus
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    environment:
+      - STORAGE_TYPE=elasticsearch
+      # Point the zipkin at the storage backend
+      - ES_HOSTS=elasticsearch-zipkin:9200
+      # Uncomment to see requests to and from elasticsearch
+      # - ES_HTTP_LOGGING=BODY
+    ports:
+      # Port used for the Zipkin UI and HTTP Api
+      - 9411:9411
+      # Uncomment if you set SCRIBE_ENABLED=true
+      # - 9410:9410
+    depends_on:
+      - elasticsearch-zipkin
+
+  zipkin-ui:
+    image: openzipkin/zipkin-ui
+    container_name: zipkin-ui
+    environment:
+      # Change this if connecting to a different zipkin server
+      - ZIPKIN_BASE_URL=http://zipkin:9411
+    ports:
+      - 9412:9412
+    links:
+      - zipkin
+    depends_on:
+      - zipkin
+  
+  dependencies:
+    image: openzipkin/zipkin-dependencies
+    container_name: dependencies
+    entrypoint: crond -f
+    environment:
+      - STORAGE_TYPE=elasticsearch
+      - ES_HOSTS=elasticsearch-zipkin
+    depends_on:
+      - elasticsearch-zipkin
