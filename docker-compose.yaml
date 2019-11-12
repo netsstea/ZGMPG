@@ -18,7 +18,7 @@ services:
       - "./mongo:/conf/"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.2
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.6.1
     container_name: elasticsearch
     volumes:
       - "./data/es:/usr/share/elasticsearch/data"
@@ -55,7 +55,7 @@ services:
       GRAYLOG_PASSWORD_SECRET: 'supersecretpassword'
       # Password: admin
       GRAYLOG_ROOT_PASSWORD_SHA2: 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-      GRAYLOG_HTTP_EXTERNAL_URI: http://127.0.0.1:9000/
+      GRAYLOG_HTTP_EXTERNAL_URI: http://10.225.3.169:9000/
       GRAYLOG_MONGODB_MAX_CONNECTIONS: 100
       GRAYLOG_MONGODB_URI: mongodb://mongo-graylog/graylog
       GRAYLOG_MONGODB_THREADS_ALLOWED_TO_BLOCK_MULTIPLIER: 5
