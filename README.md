@@ -4,11 +4,11 @@ Zipkin - Graylog - Micrometer - Prometheus - Grafana
 
 ## Pre-requiresite
 
-- create data directories for storing docker containers data
-- `mkdir $HOME/ZGMPG/mongodata -p`
-- `mkdir $HOME/ZGMPG/esdata -p`
-- `mkdir $HOME/ZGMPG/graylogdata -p`
-- `mkdir $HOME/ZGMPG/esdata-zipkin -p`
+- `sudo sysctl -w vm.max_map_count=262144`
+- Docker
+- Docker Compose
+- Ubuntu 18.04 or above
+- At least 4Gb of ram
 
 ## Endpoints
 
