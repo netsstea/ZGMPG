@@ -31,12 +31,6 @@ scrape_configs:
     static_configs:
       - targets: ['10.225.3.212:8081']
 
-  - job_name: 'user-service'
-    metrics_path: '/user/actuator/prometheus'
-    scrape_interval: 5s
-    static_configs:
-      - targets: ['10.225.3.212:8082']
-
   - job_name: 'testcase-service'
     metrics_path: '/testcase/actuator/prometheus'
     scrape_interval: 5s

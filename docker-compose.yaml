@@ -14,14 +14,14 @@ services:
     container_name: mongo-graylog
     command: "mongod --config /conf/mongo.conf"
     volumes:
-      - "$HOME/ZGMPG/mongodata:/data"
+      - "./data/mongo:/data"
       - "./mongo:/conf/"
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.2
     container_name: elasticsearch
     volumes:
-      - "$HOME/ZGMPG/esdata:/usr/share/elasticsearch/data"
+      - "./data/es:/usr/share/elasticsearch/data"
       - "./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
       - "./elasticsearch/logging.yml:/usr/share/elasticsearch/config/logging.yml:ro"
     ports:
@@ -41,9 +41,9 @@ services:
     image: openzipkin/zipkin-elasticsearch7
     container_name: elasticsearch-zipkin
     volumes:
-      - "$HOME/ZGMPG/esdata-zipkin:/usr/share/elasticsearch/data"
-      - "./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
-      - "./elasticsearch/logging.yml:/usr/share/elasticsearch/config/logging.yml:ro"
+      - "./data/es-zipkin:/usr/share/elasticsearch/data"
+      - "./elasticsearch-zipkin/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
+      - "./elasticsearch-zipkin/logging.yml:/usr/share/elasticsearch/config/logging.yml:ro"
     ports:
       - 19200:9200
       - 19300:9300
@@ -61,7 +61,7 @@ services:
       GRAYLOG_MONGODB_THREADS_ALLOWED_TO_BLOCK_MULTIPLIER: 5
       GRAYLOG_ELASTICSEARCH_CLUSTER_NAME: graylog
     volumes:
-      - "$HOME/ZGMPG/graylogdata:/opt/graylog/data"
+      - "./data/graylog:/opt/graylog/data"
       - "./graylog-plugin/:/opt/graylog/plugin/"
     links:
       - mongodb:mongo-graylog
