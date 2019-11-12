@@ -17,53 +17,52 @@ scrape_configs:
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
-      - targets: ['10.225.3.170:9090']
+      - targets: ['10.225.3.212:9090']
 
   - job_name: 'api-gateway'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['10.225.3.170:8080']
+      - targets: ['10.225.3.212:8080']
 
   - job_name: 'auth-service'
     metrics_path: '/uaa/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['10.225.3.170:8081']
+      - targets: ['10.225.3.212:8081']
 
   - job_name: 'user-service'
     metrics_path: '/user/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['10.225.3.170:8082']
+      - targets: ['10.225.3.212:8082']
 
   - job_name: 'testcase-service'
     metrics_path: '/testcase/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['10.225.3.170:8083']
+      - targets: ['10.225.3.212:8083']
 
   - job_name: 'report-service'
     metrics_path: '/report/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['10.225.3.170:8084']
+      - targets: ['10.225.3.212:8084']
 
   - job_name: 'execution-service'
     metrics_path: '/execution/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['10.225.3.170:8085']
+      - targets: ['10.225.3.212:8085']
 
   - job_name: 'account-service'
     metrics_path: '/account/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['10.225.3.170:8086']
+      - targets: ['10.225.3.212:8086']
 
   - job_name: 'registry-service'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['10.225.3.170:8761']
-
+      - targets: ['10.225.3.212:8761']
