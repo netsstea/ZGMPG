@@ -17,7 +17,7 @@ scrape_configs:
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
-      - targets: ['10.225.3.212:9090']
+      - targets: ['10.225.3.169:9090']
 
   - job_name: 'api-gateway'
     metrics_path: '/actuator/prometheus'
